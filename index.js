@@ -1,7 +1,7 @@
 const express = require('express')
+require('dotenv').config()
 const app = express()
 const cors = require('cors')
-require('dotenv').config()
 const port = process.env.PORT || 5000
 
 // 
@@ -13,7 +13,7 @@ app.use(express.json());
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const uri = "mongodb+srv://edukit:HPEqY4BGa9G24egv@cluster0.ovmmvr6.mongodb.net/?retryWrites=true&w=majority";
+const uri = "mongodb+srv://edukit:beIE8UjXvPqu5lSY@cluster0.ovmmvr6.mongodb.net/?retryWrites=true&w=majority";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -45,9 +45,53 @@ async function run() {
       res.send(user)
     })
 
+    app.get('/addToy', async (req, res) => {
+      const cursor = toyCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+    app.get('/addToy/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const user = await toyCollection.findOne(query)
+      res.send(user)
+    })
     app.post('/addToy', async (req, res) => {
-      const doc =req.body;
+      const doc = req.body;
       const result = await toyCollection.insertOne(doc);
+      res.send(result)
+    })
+    app.delete('/allToy/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) };
+      const result = await toyCollection.deleteOne(query);;
+      res.send(result)
+    })
+    app.put('/addToy/:id', async(req, res) =>{
+      const id = req.params.id;
+      const user = req.body; 
+      const filter = {_id: new ObjectId(id)}
+      const options = {upsert: true}
+      const updatedUser = {
+          $set: {
+              name: user.name,
+              sellerEmail: user.sellerEmail,
+              price:user.price,
+              sellername:user.sellername,
+              discription:user.discription,
+              subQuantity:user.subQuantity,
+              rattings:user.rattings
+          }
+      }
+
+      const result = await toyCollection.updateOne(filter, updatedUser, options );
+      res.send(result);
+
+  })
+    app.get('/allToy/:id', async (req, res) => {
+      const id =req.params.id;
+      const query = { _id:new ObjectId(id) };
+      const result = await toyCollection.findOne(query);
       res.send(result)
     })
     app.get('/allToy', async (req, res) => {
