@@ -31,6 +31,7 @@ async function run() {
 
     const database = client.db("edukit");
     const eduCollection = database.collection("eduProducts");
+    const toyCollection = database.collection("addToy");
 
     app.get('/toy', async (req, res) => {
       const cursor = eduCollection.find()
@@ -38,14 +39,22 @@ async function run() {
       res.send(result)
     })
     app.get('/toy/:id', async (req, res) => {
-      const id =req.params.id
-      console.log(id);
+      const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const user = await eduCollection.findOne(query)
       res.send(user)
     })
 
-
+    app.post('/addToy', async (req, res) => {
+      const doc =req.body;
+      const result = await toyCollection.insertOne(doc);
+      res.send(result)
+    })
+    app.get('/allToy', async (req, res) => {
+      const cursor = toyCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
 
 
 
